@@ -19,13 +19,13 @@ resource "ncloud_access_control_group" "this" {
 resource "ncloud_access_control_group_rule" "this" {
   for_each = {
     for k, v in local.acgs :
-    k => v if length(var.inbound_rules[k]) + length(var.outbound_rules[k]) > 0
+    k => v if length(v.inbound_rules) + length(v.outbound_rules) > 0
   }
 
-  access_control_group_no = ncloud_access_control_group.this[each.value.name].id
+  access_control_group_no = ncloud_access_control_group.this[each.key].id
 
   dynamic "inbound" {
-    for_each = var.inbound_rules[each.value.name]
+    for_each = each.value.inbound_rules
 
     content {
       protocol    = inbound.value.protocol
@@ -36,7 +36,7 @@ resource "ncloud_access_control_group_rule" "this" {
   }
 
   dynamic "outbound" {
-    for_each = var.outbound_rules[each.value.name]
+    for_each = each.value.outbound_rules
 
     content {
       protocol    = outbound.value.protocol
